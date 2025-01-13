@@ -3,24 +3,32 @@ package com.Klaus.Secured_Shopping.service.product;
 import com.Klaus.Secured_Shopping.exceptions.ProductNotFoundException;
 import com.Klaus.Secured_Shopping.model.Category;
 import com.Klaus.Secured_Shopping.model.Product;
+import com.Klaus.Secured_Shopping.repository.CategoryRepository;
 import com.Klaus.Secured_Shopping.repository.ProductRepository;
 import com.Klaus.Secured_Shopping.request.AddProductRequest;
+import com.Klaus.Secured_Shopping.request.ProductUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ProductService implements IProductService{
 
     private final ProductRepository productRepository;
-
+    private final CategoryRepository categoryRepository;
 
     @Override
     public Product addProduct(AddProductRequest request) {
-
-        return null;
+        Category category = Optional.ofNullable(categoryRepository.findByName(request.getCategory().getName()))
+                .orElseGet(()->{
+                    Category newCategory = new Category(request.getCategory().getName());
+                    return categoryRepository.save(newCategory);
+                });
+        request.setCategory(category);
+        return productRepository.save(createProduct(request, category));
     }
 
     private Product createProduct(AddProductRequest request, Category category){
@@ -31,7 +39,7 @@ public class ProductService implements IProductService{
                 request.getInventory(),
                 request.getDescription(),
                 category
-        )
+        );
     }
 
     @Override
@@ -47,8 +55,22 @@ public class ProductService implements IProductService{
     }
 
     @Override
-    public void updateProduct(Product product, Long productId) {
+    public Product updateProduct(ProductUpdateRequest request, Long productId) {
+        return productRepository.findById(productId)
+                .map(existingProduct -> updateExistingProduct(existingProduct, request))
+                .map(productRepository :: save)
+                .orElseThrow(()-> new ProductNotFoundException("Product no founf"));
+    }
 
+    private Product updateExistingProduct(Product existingProduct, ProductUpdateRequest request){
+        existingProduct.setName(request.getName());
+        existingProduct.setBrand(request.getBrand());
+        existingProduct.setPrice(request.getPrice());
+        existingProduct.setInventory(request.getInventory());
+        existingProduct.setDescription(request.getDescription());
+        Category category = categoryRepository.findByName(request.getCategory().getName());
+        existingProduct.setCategory(category);
+        return existingProduct;
     }
 
     @Override

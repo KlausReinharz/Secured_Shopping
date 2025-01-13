@@ -2,6 +2,7 @@ package com.Klaus.Secured_Shopping.service.product;
 
 import com.Klaus.Secured_Shopping.model.Product;
 import com.Klaus.Secured_Shopping.request.AddProductRequest;
+import com.Klaus.Secured_Shopping.request.ProductUpdateRequest;
 
 import java.util.List;
 
@@ -10,7 +11,7 @@ public interface IProductService {
 
     Product getProductById(Long id);
     void deleteProductById(Long id);
-    void updateProduct(Product product,Long productId);
+    Product updateProduct(ProductUpdateRequest request,Long productId);
 
     List<Product> getAllProducts();
     List<Product>getProductsByCategory(String categoryId);

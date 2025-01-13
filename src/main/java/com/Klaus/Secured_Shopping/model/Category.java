@@ -10,7 +10,6 @@ import java.util.List;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 public class Category {
@@ -24,4 +23,7 @@ public class Category {
     private List<Product> products;
 
 
+    public Category(String name) {
+        this.name = name;
+    }
 }
