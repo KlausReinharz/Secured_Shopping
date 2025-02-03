@@ -1,5 +1,6 @@
 package com.Klaus.Secured_Shopping.service.image;
 
+import com.Klaus.Secured_Shopping.dto.ImageDto;
 import com.Klaus.Secured_Shopping.model.Image;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -9,6 +10,6 @@ public interface IImageService {
 
     Image getImageById(Long id);
     void deleteImageById(Long id);
-    Image saveImage(List<MultipartFile> file, Long productId);
+    List<ImageDto>saveImages(List<MultipartFile> file, Long productId);
     void updateImage(MultipartFile file, Long imageId);
 }

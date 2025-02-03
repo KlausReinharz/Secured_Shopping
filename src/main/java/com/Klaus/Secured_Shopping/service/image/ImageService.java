@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.sql.rowset.serial.SerialBlob;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,9 +37,9 @@ public class ImageService implements IImageService{
     }
 
     @Override
-    public Image saveImage(List<MultipartFile> files, Long productId) {
+    public List <ImageDto> saveImages(List<MultipartFile> files, Long productId) {
         Product product = productService.getProductById(productId);
-        List<ImageDto>imageDtos = new ArrayList<>();
+        List<ImageDto>savedImageDto = new ArrayList<>();
 
         for(MultipartFile file :files){
             try{
@@ -47,14 +49,27 @@ public class ImageService implements IImageService{
                 image.setImage(new SerialBlob(file.getBytes()));
                 image.setProduct(product);
 
-
-                String downloadUrl = "/api/v1/iamges/image/download/"+image.getId();
+                String buildDownloadUrl = "/api/v1/images/image/download/";
+                String downloadUrl = buildDownloadUrl + image.getId();
                 image.setDownloadUrl(downloadUrl);
-                imageRepository.save(image);
-            }catch (){
+                Image savedImage=imageRepository.save(image);
 
+                savedImage.setDownloadUrl(buildDownloadUrl + savedImage.getImage());
+                imageRepository.save(savedImage);
+
+                ImageDto imageDto = new ImageDto();
+                imageDto.setImageId(savedImage.getId());
+                imageDto.setImageName(savedImage.getFileName());
+                imageDto.setDownLoadUrl(savedImage.getDownloadUrl());
+                savedImageDto.add(imageDto);
+
+
+
+            }catch (IOException  |SQLException e){
+                throw new RuntimeException(e.getMessage());
             }
         }
+        return savedImageDto;
     }
 
     @Override

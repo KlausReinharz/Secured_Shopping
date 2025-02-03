@@ -59,7 +59,7 @@ public class ProductService implements IProductService{
         return productRepository.findById(productId)
                 .map(existingProduct -> updateExistingProduct(existingProduct, request))
                 .map(productRepository :: save)
-                .orElseThrow(()-> new ProductNotFoundException("Product no founf"));
+                .orElseThrow(()-> new ProductNotFoundException("Product no found"));
     }
 
     private Product updateExistingProduct(Product existingProduct, ProductUpdateRequest request){
